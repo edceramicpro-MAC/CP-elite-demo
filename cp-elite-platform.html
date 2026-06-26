@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ceramic Pro Elite — Bot Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Rajdhani:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090d;--bg2:#0b0f16;--bg3:#0f1520;
+  --surf:#141c28;--surf2:#192030;--surf3:#1e2840;
+  --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.11);--bdr3:rgba(255,255,255,0.18);
+  --blue:#3d8ef0;--bdim:rgba(61,142,240,0.12);--bglow:rgba(61,142,240,0.28);
+  --teal:#2ec4b6;--tdim:rgba(46,196,182,0.12);--tglow:rgba(46,196,182,0.25);
+  --gold:#c9913a;--gdim:rgba(201,145,58,0.13);--gglow:rgba(201,145,58,0.28);
+  --green:#2eb870;--gndim:rgba(46,184,112,0.12);
+  --red:#e84545;--rddim:rgba(232,69,69,0.12);
+  --purple:#9d7ff0;--pdim:rgba(157,127,240,0.12);
+  --text:#dde2ec;--text2:#7a869e;--text3:#424e62;
+  --fh:'Rajdhani',sans-serif;--fb:'Outfit',sans-serif;--fm:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:2px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(201,145,58,0.2)}50%{box-shadow:0 0 18px rgba(201,145,58,0.4)}}
+.fadein{animation:fadeUp 0.22s ease forwards}
+
+/* ── SHELL ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:206px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.cp-logo{padding:14px 14px 12px;border-bottom:1px solid var(--bdr)}
+.cp-badge{display:flex;align-items:center;gap:9px;background:var(--gdim);border:1px solid var(--gglow);border-radius:8px;padding:9px 11px;animation:glow 3s infinite}
+.cp-gem{width:28px;height:28px;background:linear-gradient(135deg,#e6a84a,#c9913a);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:14px;font-weight:800;color:#000;flex-shrink:0}
+.cp-name{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--gold);line-height:1.1}
+.cp-tier{font-size:9px;color:rgba(201,145,58,0.55);letter-spacing:1.8px;text-transform:uppercase}
+.nav-sec{padding:10px 8px 4px}
+.nav-lbl{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);padding:0 8px 7px;font-family:var(--fm)}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;font-size:13px;color:var(--text2);cursor:pointer;transition:all 0.13s;margin-bottom:1px;user-select:none}
+.nav-item:hover{background:var(--surf);color:var(--text)}
+.nav-item.on{background:var(--bdim);color:var(--blue);font-weight:500}
+.nav-item.on-gold{background:var(--gdim);color:var(--gold);font-weight:500}
+.nav-icon{font-size:15px;width:17px;text-align:center;opacity:0.75}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;font-family:var(--fm)}
+.nb-blue{background:var(--bdim);color:var(--blue)}
+.nb-gold{background:var(--gdim);color:var(--gold)}
+.nb-green{background:var(--gndim);color:var(--green)}
+.sidebar-bots{margin-top:auto;padding:10px 10px 13px;border-top:1px solid var(--bdr)}
+.bot-row{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:5px;cursor:pointer;transition:background 0.12s}
+.bot-row:hover{background:var(--surf)}
+.bdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.bdot.on{background:var(--green);animation:pulse 2s infinite}
+.bdot.off{background:var(--text3)}
+.bot-lbl{font-size:12px;color:var(--text2)}
+.bot-ct{margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--fm)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px;padding:0 20px;flex-shrink:0;z-index:20}
+.topbar-titles{}
+.topbar-title{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--text);line-height:1}
+.topbar-sub{font-size:11px;color:var(--text3)}
+.tab-row{display:flex;gap:3px;margin-left:14px}
+.tab{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.13s;color:var(--text2);border:1px solid transparent;font-family:var(--fb);background:transparent}
+.tab:hover{background:var(--surf);color:var(--text)}
+.tab.on{background:var(--bdim);color:var(--blue);border-color:rgba(61,142,240,0.2)}
+.tab.on-gold{background:var(--gdim);color:var(--gold);border-color:var(--gglow)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:9px}
+.live-pill{display:flex;align-items:center;gap:5px;background:var(--gndim);border:1px solid rgba(46,184,112,0.2);padding:3px 9px;border-radius:20px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+.live-txt{font-size:10px;color:var(--green);font-weight:700;letter-spacing:0.8px;font-family:var(--fm)}
+.clock{font-family:var(--fm);font-size:12px;color:var(--text3)}
+.dealer-pill{display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--bdr2);padding:4px 10px;border-radius:20px;cursor:pointer;font-size:12px;color:var(--text2);transition:all 0.15s}
+.dealer-pill:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.card-head{padding:12px 15px 10px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:9px}
+.acc{width:3px;height:16px;border-radius:2px;flex-shrink:0}
+.card-title{font-family:var(--fh);font-size:13px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--text)}
+.card-sub{font-size:11px;color:var(--text3);margin-left:auto;font-family:var(--fm)}
+.card-body{padding:13px 15px}
+
+/* ── METRICS ── */
+.metric-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+.mc{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:11px 13px}
+.mc-lbl{font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;font-family:var(--fm)}
+.mc-val{font-size:22px;font-weight:700;font-family:var(--fm);line-height:1}
+.mc-d{font-size:10px;color:var(--green);margin-top:4px}
+
+/* ── FUNNEL ── */
+.funnel-wrap{display:flex;gap:10px;overflow-x:auto;padding:12px 15px}
+.fcol{min-width:155px;flex-shrink:0}
+.fcol-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fstage{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.fct{font-size:11px;font-family:var(--fm);background:var(--surf);padding:1px 6px;border-radius:8px;color:var(--text)}
+.lc{background:var(--surf);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;margin-bottom:5px;cursor:pointer;transition:all 0.13s}
+.lc:hover{border-color:var(--blue)}
+.lc-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.lc-veh{font-size:11px;color:var(--text2);margin-bottom:5px}
+.lc-foot{display:flex;align-items:center;gap:5px}
+.ldot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.lc-svc{font-size:10px;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lc-time{font-size:10px;color:var(--text3);font-family:var(--fm)}
+
+/* ── BOT SUITE ── */
+.bots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:13px 15px}
+.bot-card{background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:13px;transition:border-color 0.15s}
+.bot-card-name{font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:2px}
+.bot-card-desc{font-size:11px;color:var(--text2);margin-bottom:10px}
+.bot-stats{display:flex;gap:14px;margin-bottom:10px}
+.bs-val{font-size:18px;font-weight:700;font-family:var(--fm)}
+.bs-lbl{font-size:9px;color:var(--text3)}
+.bot-foot{display:flex;align-items:center;justify-content:space-between}
+.tog{width:28px;height:15px;border-radius:8px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+.tog.on{background:var(--green)}
+.tog.off{background:var(--text3)}
+.tog-k{position:absolute;top:2px;width:11px;height:11px;background:#fff;border-radius:50%;transition:left 0.18s}
+.tog.on .tog-k{left:15px}
+.tog.off .tog-k{left:2px}
+
+/* ── AGENT BROWSER ── */
+.agent-wrap{display:flex;height:400px}
+.convo-list{width:182px;flex-shrink:0;border-right:1px solid var(--bdr);overflow-y:auto}
+.ci{padding:10px 12px;border-bottom:1px solid var(--bdr);cursor:pointer;transition:background 0.12s;border-left:2px solid transparent}
+.ci:hover{background:var(--surf)}
+.ci.on{background:var(--bdim);border-left-color:var(--blue)}
+.ci-name{font-size:12px;font-weight:600;color:var(--text)}
+.ci-prev{font-size:11px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-phase{font-size:9px;font-weight:700;margin-top:4px;font-family:var(--fm)}
+.chat-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-hdr{padding:9px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:9px}
+.msgs{flex:1;overflow-y:auto;padding:10px 13px;display:flex;flex-direction:column;gap:8px}
+.msg{display:flex;flex-direction:column;max-width:82%}
+.msg.in{align-self:flex-start}
+.msg.out{align-self:flex-end}
+.bubble{padding:8px 11px;border-radius:9px;font-size:12px;line-height:1.5}
+.msg.in .bubble{background:var(--surf);border:1px solid var(--bdr);border-radius:9px 9px 9px 2px;color:var(--text)}
+.msg.out .bubble{background:var(--bdim);border:1px solid rgba(61,142,240,0.18);border-radius:9px 9px 2px 9px;color:var(--text)}
+.msg-time{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--fm)}
+.msg.out .msg-time{text-align:right}
+.bot-tag{font-size:9px;color:var(--blue);text-align:right;font-family:var(--fm)}
+.reason-pane{width:222px;flex-shrink:0;border-left:1px solid var(--bdr);overflow-y:auto;padding:11px 12px}
+.r-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-family:var(--fm)}
+.r-step{margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--bdr)}
+.r-step:last-child{border-bottom:none}
+.r-lbl{font-size:9px;font-weight:700;color:var(--blue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px;font-family:var(--fm)}
+.r-txt{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* ── PIPELINE ── */
+.pipe-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.pipe-row:last-child{border-bottom:none}
+.pipe-stage{font-size:11px;color:var(--text2);width:76px}
+.pipe-trk{flex:1;height:5px;background:var(--surf);border-radius:3px}
+.pipe-bar{height:5px;border-radius:3px}
+.pipe-n{font-size:11px;font-family:var(--fm);color:var(--text2);width:62px;text-align:right}
+.pipe-v{font-size:12px;font-weight:600;font-family:var(--fm);color:var(--green);width:54px;text-align:right}
+
+/* ── MAP ── */
+.map-row{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.map-rk{font-size:10px;color:var(--text3);width:14px;font-family:var(--fm)}
+.map-city{font-size:12px;color:var(--text);flex:1}
+.map-trk{flex:1;height:3px;background:var(--surf);border-radius:2px}
+.map-bar{height:3px;border-radius:2px;background:var(--blue)}
+.map-ct{font-size:11px;color:var(--text2);font-family:var(--fm);width:44px;text-align:right}
+
+/* ── GBP ── */
+.gbp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gbp-s{background:var(--surf);border-radius:7px;padding:10px;border:1px solid var(--bdr)}
+.gbp-v{font-size:20px;font-weight:700;font-family:var(--fm)}
+.gbp-l{font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:0.5px;text-transform:uppercase}
+.gbp-d{font-size:10px;color:var(--green);margin-top:3px}
+
+/* ── REVIEWS ── */
+.rb-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.rb-lbl{font-size:10px;color:var(--text2);width:10px;text-align:center}
+.rb-trk{flex:1;height:3px;background:var(--surf);border-radius:2px}
+.rb-fill{height:3px;border-radius:2px}
+
+/* ── QUEUE ── */
+.qi{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.qi:last-child{border-bottom:none}
+.qi-init{width:32px;height:32px;border-radius:7px;background:var(--surf);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0}
+.qi-name{font-size:12px;font-weight:600;color:var(--text)}
+.qi-veh{font-size:11px;color:var(--text2);margin-top:1px}
+.qi-days{font-size:10px;color:var(--text3);font-family:var(--fm)}
+.warm-tag{font-size:9px;font-weight:700;background:var(--gdim);color:var(--gold);padding:1px 5px;border-radius:4px;margin-left:4px}
+.nudge-btn{margin-left:auto;flex-shrink:0;background:var(--bdim);border:1px solid rgba(61,142,240,0.2);color:var(--blue);font-size:11px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;transition:all 0.13s;font-family:var(--fb)}
+.nudge-btn:hover{background:var(--blue);color:#000}
+.nudge-btn.sent{background:var(--gndim);border-color:var(--green);color:var(--green)}
+
+/* ── NETWORK ── */
+.network-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.dealer-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:13px;cursor:pointer;transition:all 0.15s}
+.dealer-card:hover{border-color:var(--gold);transform:translateY(-1px)}
+.dc-name{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.dc-loc{font-size:11px;color:var(--text2);margin-bottom:9px}
+.dc-stats{display:flex;gap:13px;margin-bottom:8px}
+.dcs-val{font-size:17px;font-weight:700;font-family:var(--fm)}
+.dcs-lbl{font-size:9px;color:var(--text3)}
+.cp-cert{font-size:9px;color:var(--gold);background:var(--gdim);padding:1px 6px;border-radius:4px;font-weight:600;letter-spacing:0.5px;font-family:var(--fm)}
+
+/* ── BOT CONFIG ── */
+.cfg-tabs{display:flex;gap:5px;padding:12px 15px 0;border-bottom:1px solid var(--bdr)}
+.cfg-tab{padding:6px 13px;border-radius:5px 5px 0 0;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.13s;color:var(--text2);border:1px solid transparent;border-bottom:none;font-family:var(--fb);margin-bottom:-1px}
+.cfg-tab:hover{color:var(--text)}
+.cfg-tab.on{color:var(--blue);border-color:rgba(61,142,240,0.2);background:var(--bdim)}
+.cfg-tab.on-teal{color:var(--teal);border-color:rgba(46,196,182,0.2);background:var(--tdim)}
+.cfg-tab.on-purple{color:var(--purple);border-color:rgba(157,127,240,0.2);background:var(--pdim)}
+.cfg-body{padding:15px}
+.cfg-2col{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.fld{margin-bottom:13px}
+.fld:last-child{margin-bottom:0}
+.fld-lbl{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:7px;font-family:var(--fm)}
+.fld-hint{font-size:11px;color:var(--text3);margin-top:4px}
+input.inp,select.sel,textarea.txa{width:100%;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:9px 12px;font-size:13px;color:var(--text);outline:none;transition:border-color 0.15s;font-family:var(--fb)}
+input.inp:focus,select.sel:focus,textarea.txa:focus{border-color:var(--bdr2)}
+textarea.txa{resize:vertical;min-height:80px;line-height:1.5}
+select.sel{appearance:none;cursor:pointer}
+
+/* ── PERSONA DROPDOWN ── */
+.persona-wrap{position:relative}
+.persona-cur{display:flex;align-items:center;gap:10px;background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s}
+.persona-cur:hover,.persona-cur.open{border-color:var(--bdr2)}
+.p-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.p-name{font-size:14px;font-weight:600;color:var(--text)}
+.p-role{font-size:11px;color:var(--text2);margin-top:1px}
+.persona-drop{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--bg3);border:1px solid var(--bdr2);border-radius:9px;overflow:hidden;z-index:200;box-shadow:0 10px 36px rgba(0,0,0,0.55)}
+.p-opt{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;transition:background 0.12s;border-bottom:1px solid var(--bdr)}
+.p-opt:last-child{border-bottom:none}
+.p-opt:hover{background:var(--surf)}
+.p-opt.sel{background:var(--bdim)}
+.po-name{font-size:13px;font-weight:600;color:var(--text)}
+.po-desc{font-size:11px;color:var(--text2);margin-top:1px}
+.po-tags{display:flex;gap:4px;margin-top:4px}
+.po-tag{font-size:9px;padding:1px 5px;border-radius:4px;font-family:var(--fm);font-weight:600}
+
+/* ── TONE TRACK ── */
+.tone-track{display:flex;gap:4px}
+.tone-pip{flex:1;height:6px;border-radius:3px;cursor:pointer;transition:background 0.12s}
+
+/* ── TRAIT GRID ── */
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.trait-tog{display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:8px 10px;cursor:pointer;transition:all 0.13s}
+.trait-tog.on{border-color:rgba(61,142,240,0.3);background:var(--bdim)}
+.trait-lbl{font-size:12px;color:var(--text2);flex:1}
+.trait-tog.on .trait-lbl{color:var(--blue)}
+.mini-tog{width:22px;height:12px;border-radius:6px;flex-shrink:0;position:relative;transition:background 0.15s}
+.mini-tog.on{background:var(--blue)}
+.mini-tog.off{background:var(--text3)}
+.mini-k{position:absolute;top:1.5px;width:9px;height:9px;background:#fff;border-radius:50%;transition:left 0.15s}
+.mini-tog.on .mini-k{left:11px}
+.mini-tog.off .mini-k{left:1.5px}
+
+/* ── PREVIEW BUBBLE ── */
+.preview-box{background:var(--bg);border-radius:9px;padding:13px;border:1px solid var(--bdr)}
+.preview-lbl{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:9px;font-family:var(--fm)}
+.preview-msg{background:var(--bdim);border:1px solid rgba(61,142,240,0.15);border-radius:9px 9px 2px 9px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.6;max-width:88%;margin-left:auto}
+.preview-from{text-align:right;font-size:9px;color:var(--blue);margin-top:4px;font-family:var(--fm)}
+
+/* ── PLATFORM CARDS ── */
+.plat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.plat-card{background:var(--surf);border:1px solid var(--bdr);border-radius:9px;padding:12px;transition:all 0.15s}
+.plat-card.connected{border-color:rgba(46,184,112,0.3)}
+.plat-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.plat-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.plat-name{font-size:12px;font-weight:600;color:var(--text)}
+.plat-handle{font-size:10px;color:var(--text2)}
+.plat-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;font-family:var(--fm)}
+.pb-on{background:var(--gndim);color:var(--green)}
+.pb-off{background:var(--surf2);color:var(--text3)}
+.plat-opts{display:flex;gap:5px;flex-wrap:wrap}
+.plat-opt{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--gndim);color:var(--green);border:1px solid rgba(46,184,112,0.2);cursor:pointer}
+.plat-connect{width:100%;background:var(--surf2);border:1px solid var(--bdr2);color:var(--text2);font-size:12px;font-weight:600;padding:7px;border-radius:6px;cursor:pointer;transition:all 0.15s;font-family:var(--fb)}
+.plat-connect:hover{border-color:var(--green);color:var(--green);background:var(--gndim)}
+
+/* ── MEDIA GRID ── */
+.media-drop{border:1.5px dashed var(--bdr);border-radius:9px;padding:20px;text-align:center;cursor:pointer;transition:all 0.18s;margin-bottom:12px}
+.media-drop:hover{border-color:var(--teal);background:var(--tdim)}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.media-item{background:var(--surf);border:1px solid var(--bdr);border-radius:7px;overflow:hidden;cursor:pointer;transition:border-color 0.13s;position:relative}
+.media-item:hover{border-color:var(--bdr2)}
+.media-item.sel{border-color:var(--teal)}
+.media-thumb{height:64px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--surf2)}
+.media-info{padding:6px 8px}
+.media-name{font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--fm)}
+.media-sz{font-size:10px;color:var(--text3)}
+.media-chk{position:absolute;top:4px;right:4px;width:17px;height:17px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#000}
+
+/* ── LIVE DEMO / COATINGBOT ── */
+.demo-wrap{display:grid;grid-template-columns:1fr 300px;gap:0;min-height:480px}
+.demo-chat{display:flex;flex-direction:column}
+.demo-chat-hdr{padding:12px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:9px}
+.demo-avatar{width:34px;height:34px;border-radius:50%;background:var(--gndim);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--green);font-family:var(--fh);flex-shrink:0;border:1px solid rgba(46,184,112,0.25)}
+.demo-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:9px;min-height:300px;max-height:300px}
+.demo-quick{padding:7px 14px;display:flex;flex-wrap:wrap;gap:5px}
+.qbtn{font-size:11px;padding:5px 10px;border:1px solid var(--bdr2);border-radius:20px;background:transparent;color:var(--text2);cursor:pointer;transition:all 0.13s;font-family:var(--fb)}
+.qbtn:hover{background:var(--surf);color:var(--text);border-color:var(--bdr3)}
+.demo-input-row{padding:10px 14px;border-top:1px solid var(--bdr);display:flex;gap:8px}
+.demo-input{flex:1;font-size:12px;padding:8px 12px;border:1px solid var(--bdr);border-radius:7px;background:var(--surf);color:var(--text);outline:none;font-family:var(--fb)}
+.demo-input:focus{border-color:var(--bdr2)}
+.demo-send{padding:8px 14px;border:1px solid var(--bdr2);border-radius:7px;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;transition:all 0.13s}
+.demo-send:hover{background:var(--surf);color:var(--text)}
+.demo-side{border-left:1px solid var(--bdr);display:flex;flex-direction:column}
+.demo-side-hdr{padding:11px 13px;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--text);letter-spacing:0.5px;font-family:var(--fh);text-transform:uppercase;letter-spacing:1px}
+.demo-lead{padding:12px 13px;border-bottom:1px solid var(--bdr)}
+.demo-lead-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;font-family:var(--fh)}
+.demo-lead-veh{font-size:11px;color:var(--text2);margin-bottom:7px}
+.demo-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;margin-right:4px;font-family:var(--fm)}
+.db-new{background:var(--bdim);color:var(--blue)}
+.db-warm{background:var(--gdim);color:var(--gold)}
+.db-hot{background:var(--rddim);color:var(--red)}
+.pkg-sec{padding:12px 13px;flex:1;overflow-y:auto}
+.pkg-lbl{font-size:9px;color:var(--text3);margin-bottom:9px;text-transform:uppercase;letter-spacing:1.3px;font-family:var(--fm)}
+.pkg-card{padding:9px 11px;border:1px solid var(--bdr);border-radius:7px;background:var(--surf);margin-bottom:6px;cursor:pointer;transition:border-color 0.13s}
+.pkg-card:hover{border-color:var(--bdr2)}
+.pkg-card.sel-pkg{border-color:var(--blue);background:var(--bdim)}
+.pkg-row{display:flex;justify-content:space-between;align-items:center}
+.pkg-name{font-size:12px;font-weight:600;color:var(--text)}
+.pkg-price{font-size:12px;font-weight:600;color:var(--blue)}
+.pkg-detail{font-size:10px;color:var(--text2);margin-top:2px}
+.summary-box{margin:0 13px 10px;padding:10px 11px;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;font-size:11px;color:var(--text2);line-height:1.7;display:none}
+.summary-box.vis{display:block}
+.demo-actions{padding:11px 13px;border-top:1px solid var(--bdr);display:flex;gap:7px}
+.demo-act-btn{flex:1;padding:8px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bdr2);background:transparent;color:var(--text2);transition:all 0.13s;font-family:var(--fb)}
+.demo-act-btn:hover{background:var(--surf)}
+.demo-act-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.demo-act-btn.primary:hover{background:#5aa0ff}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+
+/* ── SAVE BAR ── */
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surf);border:1px solid var(--bdr2);border-radius:9px;padding:12px 16px;margin-top:14px}
+.save-info{font-size:12px;color:var(--text2)}
+.save-info strong{color:var(--text)}
+.save-btns{display:flex;gap:7px}
+.btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--text2);font-size:12px;font-weight:500;padding:7px 16px;border-radius:7px;cursor:pointer;transition:all 0.13s;font-family:var(--fb)}
+.btn-ghost:hover{border-color:var(--bdr2);color:var(--text)}
+.btn-primary{font-size:12px;font-weight:600;padding:7px 20px;border-radius:7px;cursor:pointer;border:none;font-family:var(--fb);transition:all 0.15s}
+.btn-primary:hover{filter:brightness(1.1)}
+
+/* ── PERSONA COMPARE ── */
+.persona-compare{display:flex;flex-direction:column;gap:7px}
+.pc-row{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;background:var(--surf);border-radius:7px;border:1px solid var(--bdr);cursor:pointer;transition:all 0.13s}
+.pc-row:hover{border-color:var(--bdr2)}
+.pc-row.sel-p{border-color:rgba(61,142,240,0.35);background:var(--bdim)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="cp-logo">
+    <div class="cp-badge">
+      <div class="cp-gem">CP</div>
+      <div>
+        <div class="cp-name">Ceramic Pro</div>
+        <div class="cp-tier">Elite Network</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-lbl">Workspace</div>
+    <div class="nav-item on" onclick="showView('dashboard')"><span class="nav-icon">◉</span>Dashboard</div>
+    <div class="nav-item" onclick="showView('funnel')"><span class="nav-icon">▤</span>Live Funnel<span class="nav-badge nb-blue">98</span></div>
+    <div class="nav-item" onclick="showView('agent')"><span class="nav-icon">⚡</span>TintBot<span class="nav-badge nb-blue">12</span></div>
+    <div class="nav-item" onclick="showView('demo')"><span class="nav-icon">💬</span>Live Demo<span class="nav-badge nb-green">NEW</span></div>
+    <div class="nav-item" onclick="showView('config')"><span class="nav-icon">⚙</span>Bot Config<span class="nav-badge nb-gold">3</span></div>
+    <div class="nav-lbl" style="margin-top:10px">Network</div>
+    <div class="nav-item" onclick="showView('network')"><span class="nav-icon">◫</span>All 88 Dealers<span class="nav-badge nb-gold">88</span></div>
+  </div>
+  <div class="sidebar-bots">
+    <div class="bot-row"><div class="bdot on"></div><span class="bot-lbl">TintBot</span><span class="bot-ct">12 active</span></div>
+    <div class="bot-row"><div class="bdot on"></div><span class="bot-lbl">AdBot</span><span class="bot-ct">4 active</span></div>
+    <div class="bot-row"><div class="bdot off"></div><span class="bot-lbl">ContentBot</span><span class="bot-ct">offline</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-titles">
+      <div class="topbar-title" id="topbar-title">NXT Wraps — Live Dashboard</div>
+      <div class="topbar-sub" id="topbar-sub">Waldorf, Maryland · Ceramic Pro Elite</div>
+    </div>
+    <div class="tab-row" id="tab-row"></div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+      <span class="clock" id="clock">--:--:--</span>
+      <div class="dealer-pill" onclick="toggleNetwork()">NXT Wraps ↕</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content"></div>
+</div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const LEADS=[
+  {name:"Djordje Janjic",vehicle:"2022 Tesla Model X",stage:"Value Stack",svc:"Ceramic IR tint",dot:"#2eb870",time:"1h"},
+  {name:"Kim S.",vehicle:"2018 Tesla Model S",stage:"Connect",svc:"Window tint",dot:"#2eb870",time:"1h"},
+  {name:"Christopher Lawrence",vehicle:"2015 Honda CR-V",stage:"Situation",svc:"Window tint",dot:"#c9913a",time:"5h"},
+  {name:"Sherrod Shelton",vehicle:"2026 Toyota Crown",stage:"Close",svc:"PPF + tint",dot:"#e84545",time:"14h"},
+  {name:"Melika Motsebo",vehicle:"2018 Hyundai Elantra",stage:"Problem Aware",svc:"Ceramic coating",dot:"#2eb870",time:"13h"},
+  {name:"Randy Maliksi",vehicle:"2026 Subaru Ascent",stage:"Problem Aware",svc:"Window tint",dot:"#c9913a",time:"16h"},
+  {name:"Jordan Butler",vehicle:"2026 Chevy Tahoe",stage:"Connect",svc:"PPF full front",dot:"#2eb870",time:"1d"},
+  {name:"Ria Scott",vehicle:"2024 KIA Telluride",stage:"Situation",svc:"PPF + tint",dot:"#2eb870",time:"1d"},
+];
+const STAGES=["Connect","Situation","Problem Aware","Value Stack","Close"];
+const STAGE_COLORS={Connect:"#3d8ef0",Situation:"#3d8ef0","Problem Aware":"#2eb870","Value Stack":"#9d7ff0",Close:"#c9913a"};
+const PIPELINE=[
+  {stage:"New",leads:2256,value:"$9K",color:"#3d8ef0",pct:100},
+  {stage:"Contacted",leads:30,value:"$8K",color:"#9d7ff0",pct:10},
+  {stage:"Quoted",leads:91,value:"$244K",color:"#c9913a",pct:38},
+  {stage:"Booked",leads:38,value:"$84K",color:"#2eb870",pct:16},
+  {stage:"Installed",leads:57,value:"$152K",color:"#2eb870",pct:24},
+];
+const MAP_DATA=[
+  {city:"Waldorf, MD",count:393},{city:"Baltimore, MD",count:312},
+  {city:"Washington, DC",count:155},{city:"La Plata, MD",count:115},
+  {city:"Fort Washington, MD",count:112},{city:"Ashburn, VA",count:69},
+];
+const DEALERS=[
+  {name:"NXT Wraps",loc:"Waldorf, MD",leads:98,booked:38,rev:"$84K",bot:true},
+  {name:"CP Babylon",loc:"West Babylon, NY",leads:67,booked:22,rev:"$51K",bot:true},
+  {name:"Elite Shield ATL",loc:"Atlanta, GA",leads:43,booked:15,rev:"$33K",bot:false},
+  {name:"PPF Dallas",loc:"Dallas, TX",leads:89,booked:31,rev:"$72K",bot:true},
+  {name:"SoCal Tint Pro",loc:"Los Angeles, CA",leads:112,booked:44,rev:"$98K",bot:true},
+  {name:"Chi-Town Ceramic",loc:"Chicago, IL",leads:55,booked:18,rev:"$41K",bot:false},
+];
+const PERSONAS=[
+  {id:"alex",name:"Alex",role:"Friendly Sales Advisor",emoji:"😊",color:"#3d8ef0",
+   preview:"Hey {name}! Thanks for reaching out to NXT Wraps. Awesome — what's the vehicle you're looking to protect?"},
+  {id:"david",name:"David",role:"Expert Consultant",emoji:"🎯",color:"#9d7ff0",
+   preview:"Hey {name} — David here from NXT Wraps, a Ceramic Pro Elite certified dealer. What vehicle are we protecting today?"},
+  {id:"maya",name:"Maya",role:"Luxury Concierge",emoji:"✨",color:"#c9913a",
+   preview:"{name}, welcome to NXT Wraps — a Ceramic Pro Elite certified dealer. Your vehicle deserves the full Elite treatment. May I walk you through what that looks like?"},
+  {id:"custom",name:"Custom",role:"Your persona",emoji:"⚙️",color:"#424e62",
+   preview:"Configure your custom persona below."},
+];
+const PLATFORMS=[
+  {name:"Instagram",icon:"📸",bg:"#833ab4",handle:"@nxtwraps",on:true,opts:["Stories","Feed","Reels"]},
+  {name:"Facebook",icon:"👤",bg:"#1877f2",handle:"NXT Wraps MD",on:true,opts:["Posts","Events"]},
+  {name:"Google Business",icon:"🔍",bg:"#4285f4",handle:"NXT Wraps",on:true,opts:["Posts","Photos"]},
+  {name:"TikTok",icon:"🎵",bg:"#111",handle:"@nxtwraps",on:false,opts:["Videos","LIVE"]},
+  {name:"YouTube",icon:"▶️",bg:"#f00",handle:"NXT Wraps",on:false,opts:["Shorts","Videos"]},
+  {name:"X/Twitter",icon:"✕",bg:"#222",handle:"@nxtwraps",on:false,opts:["Posts"]},
+];
+const MEDIA=[
+  {name:"ppf-install-v2.mp4",size:"48MB",thumb:"🎬"},
+  {name:"ceramic-before-after.mp4",size:"32MB",thumb:"🎬"},
+  {name:"tint-model3.jpg",size:"4.2MB",thumb:"🖼️"},
+  {name:"cp-elite-badge.png",size:"1.1MB",thumb:"🖼️"},
+  {name:"shop-walkthrough.mp4",size:"89MB",thumb:"🎬"},
+  {name:"coating-gloss.jpg",size:"3.8MB",thumb:"🖼️"},
+];
+const QUEUE=[
+  {name:"Courtney Edmonds",vehicle:"2026 Chevy Corvette",days:"13d",warm:true},
+  {name:"Jonnatan Hernandez",vehicle:"2023 BMW X5",days:"13d",warm:true},
+  {name:"Marcus Webb",vehicle:"2025 Ford Mustang",days:"9d",warm:false},
+  {name:"Tiara Foxworth",vehicle:"2023 Nissan Sentra",days:"7d",warm:false},
+];
+const CONVOS=[
+  {name:"Djordje Janjic",vehicle:"2022 Tesla Model X",phase:"Value Stack",phaseColor:"#9d7ff0",
+   msgs:[
+     {d:"in",t:"Ok when can we do it? I don't know my schedule yet but will know tomorrow."},
+     {d:"out",t:"Got it. Mon, Tue, Wed all open this week. Let me know tomorrow and I'll lock you in."},
+     {d:"in",t:"How long will it take?"},
+     {d:"out",t:"Full car on the Model X with the oversized windshield runs 3.5–4 hours. Shoot me the day tomorrow."},
+   ],
+   reasoning:[
+     {l:"NEPQ Phase",t:"P4 Value Stack complete. Operational questions = strong buying signals."},
+     {l:"CP Authority",t:"Tesla FSD camera compatibility confirmed from ceramicpro.com knowledge base."},
+     {l:"Next Action",t:"Auto-nudge set 5:20pm tomorrow if no reply received."},
+   ]
+  },
+  {name:"Christopher Lawrence",vehicle:"2015 Honda CR-V",phase:"Situation",phaseColor:"#3d8ef0",
+   msgs:[
+     {d:"in",t:"Both the warranty and longevity. Also considering the value."},
+     {d:"out",t:"KAVACA Ceramic IR carries a lifetime warranty — fading, bubbling, peeling covered. On a CR-V it also holds resale value."},
+     {d:"in",t:"What warranty comes with carbon?"},
+     {d:"out",t:"Carbon has a limited lifetime. Ceramic is the upgrade — more heat blocked, IR rejection noticeable. Want a side-by-side?"},
+   ],
+   reasoning:[
+     {l:"NEPQ Phase",t:"P2 Situation — warranty sensitivity flagged. High value-conscious lead."},
+     {l:"CP Authority",t:"KAVACA lifetime warranty positioned as key differentiator."},
+     {l:"Next Action",t:"Nudge 8:00am with comparison breakdown. Move to P3."},
+   ]
+  },
+];
+
+// ── DEMO / COATINGBOT FLOW ────────────────────────────────────────────────
+const PACKAGES=[
+  {name:"Sport",price:"$299",detail:"1-yr spray coating · basic protection",warranty:"1 year"},
+  {name:"Bronze",price:"$499",detail:"Top coat + wheels + glass",warranty:"2 year"},
+  {name:"Silver",price:"$799",detail:"9H + top coat · 5-yr warranty",warranty:"5 year"},
+  {name:"Gold",price:"$1,199",detail:"9H × 4 layers · lifetime warranty",warranty:"Lifetime"},
+  {name:"ION 7yr",price:"$1,499",detail:"ION base + top coat · 2 layers",warranty:"7 year"},
+  {name:"Ultimate ION",price:"$1,999",detail:"ION 3-layer · lifetime warranty",warranty:"Lifetime"},
+];
+const TINT_PKGS=[
+  {name:"Carbon Sides/Rear",price:"$295",detail:"Carbon tint · sides & rear"},
+  {name:"Ceramic Sides/Rear",price:"$480",detail:"KAVACA Ceramic IR · lifetime warranty"},
+  {name:"Windshield Add-on",price:"$160",detail:"Carbon windshield strip or full"},
+];
+const PPF_PKGS=[
+  {name:"Full Front",price:"$899",detail:"Hood · fenders · bumper · mirrors"},
+  {name:"Full Car",price:"$2,400",detail:"Complete vehicle protection"},
+  {name:"Track Pack",price:"$1,100",detail:"Full front + rocker panels"},
+];
+
+const DEMO_FLOWS={
+  coating:[
+    {bot:"Hey! This is Alex from NXT Wraps, a Ceramic Pro Elite certified dealer. I just picked up your inquiry — thanks for reaching out! Quick question: is this for a new vehicle or a daily driver?",quick:["Brand new car","Daily driver","It's a few years old"],next:(t)=>t.includes("new")?1:2},
+    {bot:"Congrats on the new car! For fresh factory paint, most customers go with our Gold or ION package — you're protecting before any damage happens. Are you after long-term protection, the showroom gloss, or both?",quick:["Both protection and gloss","Mostly protection","Mostly the look"],next:()=>3,pkgs:[3,4]},
+    {bot:"Smart move on the daily driver. Silver or Gold is the sweet spot — real 9H hardness handles parking lot scratches and bird droppings. What's your rough budget range?",quick:["Under $600","$600–$1,000","$1,000–$1,500","$1,500+"],next:(t)=>t.includes("600")&&!t.includes("1,000")?5:t.includes("1,500")?4:3},
+    {bot:"Perfect — at that range you're looking at our Gold ($1,199 · lifetime warranty) or ION 7yr ($1,499 · newer ion-exchange tech with better self-cleaning). Gold is our most popular. Want me to put together a quote?",quick:["Yes send the quote","Tell me more about ION","What's the difference?"],next:(t)=>t.includes("quote")?6:4,pkgs:[3,4],lead:{name:"Marcus T.",vehicle:"2024 BMW X5",badge:"warm"}},
+    {bot:"ION uses ion-exchange technology — bonds at a molecular level, more hydrophobic, easier to maintain than traditional 9H. 7-year warranty vs 5 for Silver. For a car you care about, it's worth the difference. Still want me to build the quote?",quick:["Yes send the quote","Go with Gold","What about Silver?"],next:(t)=>t.includes("quote")||t.includes("Gold")?6:3,pkgs:[3,4,5]},
+    {bot:"For under $600 our Bronze ($499) is solid — top coat on the full car plus wheels and glass coated. Great starting point, upgrade anytime. Want to get booked in?",quick:["Yes let's book","What does Bronze include?","Can I do Silver instead?"],next:(t)=>t.includes("book")?6:3,pkgs:[1,2]},
+    {bot:"Done — quote ready. I've noted your vehicle and package. To lock in your appointment, just a 10% deposit. I'll text you the invoice link. We have Tuesday and Thursday open this week — which works?",quick:["Tuesday works","Thursday works","I'll check my schedule"],next:()=>7,pkgs:[3],showSummary:true,lead:{name:"Marcus T.",vehicle:"2024 BMW X5",badge:"hot"}},
+    {bot:"Perfect — David will confirm the exact time and send the deposit link within 30 minutes. Ceramic Pro Elite warranty gets registered to your VIN at ceramicpro.com after the install. Anything else?",quick:["How long does it take?","What's the aftercare?","I'm all set, thanks"],next:()=>8},
+    {bot:"Full car coating runs 4–6 hours. Keep the car dry for 24 hours after, then wash and enjoy — the coating does the work. We'll see you soon! 🎉",quick:[],next:()=>8,lead:{name:"Marcus T.",vehicle:"2024 BMW X5",badge:"hot"}},
+  ],
+  tint:[
+    {bot:"Hey! Alex from NXT Wraps — Ceramic Pro Elite certified. Thanks for reaching out about window tint. What's the vehicle?",quick:["Tesla Model 3","BMW X5","Chevy Tahoe","Other"],next:()=>1},
+    {bot:"Nice! Are you more focused on privacy, heat rejection, or both? That helps me point you to the right film.",quick:["Privacy mainly","Heat rejection","Both"],next:(t)=>t.includes("heat")||t.includes("both")?2:3,pkgs:[0,1]},
+    {bot:"For heat rejection, KAVACA Ceramic IR is the move — blocks up to 96% of infrared heat. Non-metallic so it won't interfere with your FSD cameras, GPS, or any electronics. Way different from regular carbon tint. Full car runs $480 with a lifetime warranty.",quick:["That sounds great","What about carbon?","How much for windshield too?"],next:(t)=>t.includes("carbon")?3:4,pkgs:[1,2]},
+    {bot:"Carbon tint is $295 for sides and rear — solid value, blocks heat reasonably well. The big upgrade to ceramic is IR rejection: ceramic blocks about 3x more heat. On a hot Maryland summer the difference is very noticeable.",quick:["I'll go ceramic","Carbon works for me","Tell me more"],next:()=>4,pkgs:[0,1]},
+    {bot:"Want me to add the windshield? It's $160 for the add-on and makes a big difference for visibility in bright sunlight. A lot of customers do the full car.",quick:["Yes add windshield","No thanks, just the car","What percentage for windshield?"],next:()=>5,pkgs:[1,2]},
+    {bot:"You're all set — I'll prep the quote now. We have openings Tuesday and Wednesday this week. A small deposit locks in your slot. Ready to book?",quick:["Yes let's book it","I need to check my schedule"],next:(t)=>t.includes("book")?6:5,showSummary:true,lead:{name:"Sarah M.",vehicle:"2023 Tesla Model 3",badge:"hot"}},
+    {bot:"Done! David will send the deposit link and confirm your exact time within the hour. KAVACA lifetime warranty is registered to your VIN. We'll see you soon!",quick:[],next:()=>6,lead:{name:"Sarah M.",vehicle:"2023 Tesla Model 3",badge:"hot"}},
+  ],
+  ppf:[
+    {bot:"Hey — Alex from NXT Wraps! KAVACA PPF is one of our most popular installs. What part of the car are you thinking about protecting?",quick:["Full front end","Full car","Just the hood","Rocker panels too"],next:()=>1},
+    {bot:"Smart — the front end takes the most rock chips on the highway. Our Full Front package ($899) covers the hood, fenders, bumper, and mirrors. For a full car it's $2,400. Do you have a car that you're especially protective about?",quick:["Brand new car","Daily driver","High-value vehicle"],next:(t)=>t.includes("new")||t.includes("high")?2:3,pkgs:[0,1]},
+    {bot:"For a high-value or new vehicle, most owners do full car — it's the only way to guarantee zero chip damage anywhere. The film self-heals light scratches with heat, and it's backed by a Ceramic Pro Elite warranty tied to your VIN. Want the full car quote?",quick:["Yes full car quote","Just the front for now","What does it self-heal?"],next:()=>4,pkgs:[1,2]},
+    {bot:"Full Front ($899) is the most popular option — covers all the high-impact zones. We can always add more coverage later. Want me to put together a quote?",quick:["Yes send the quote","What's included exactly?","Can I bundle with tint?"],next:()=>4,pkgs:[0,2]},
+    {bot:"Quote ready! Full Front KAVACA PPF with lifetime self-healing warranty. 10% deposit to book your slot. We have openings this week — Tuesday or Thursday. Which works?",quick:["Tuesday","Thursday","I'll check my schedule"],next:(t)=>t.includes("Tuesday")||t.includes("Thursday")?5:4,showSummary:true,pkgs:[0],lead:{name:"James H.",vehicle:"2025 Porsche 911",badge:"hot"}},
+    {bot:"Locked in! David will send the deposit link and confirm your time. After the install, your warranty is registered to your VIN at ceramicpro.com. See you soon! 🚗",quick:[],next:()=>5,lead:{name:"James H.",vehicle:"2025 Porsche 911",badge:"hot"}},
+  ]
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let currentView='dashboard';
+let currentConvo=0;
+let currentPersona='alex';
+let currentTone=3;
+let currentTraits={0:true,1:true,4:true,7:true};
+let botToggles={tintbot:true,adbot:true,contentbot:false};
+let nudgedItems={};
+let selMedia={};
+let demoType='coating';
+let demoStep=0;
+let demoTyping=false;
+let platforms=[...PLATFORMS];
+let links=["https://nxtwraps.com/specials"];
+let personaOpen=false;
+
+// ── CLOCK ──────────────────────────────────────────────────────────────────
+setInterval(()=>{
+  const el=document.getElementById('clock');
+  if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+},1000);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const h=(tag,cls,html,style='',onclick='')=>`<${tag} class="${cls}" style="${style}"${onclick?` onclick="${onclick}"`:''}>${html}</${tag}>`;
+const dot=(color,pulse=false)=>`<div style="width:6px;height:6px;border-radius:50%;background:${color};${pulse?'animation:pulse 2s infinite':''}"></div>`;
+const acc=(color)=>`<div class="acc" style="background:${color}"></div>`;
+const tog=(on,id)=>`<div class="tog ${on?'on':'off'}" onclick="toggleBot('${id}')"><div class="tog-k"></div></div>`;
+const minitog=(on)=>`<div class="mini-tog ${on?'on':'off'}"><div class="mini-k"></div></div>`;
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function showView(v){
+  currentView=v;
+  document.querySelectorAll('.nav-item').forEach(el=>{el.classList.remove('on','on-gold')});
+  const navMap={dashboard:0,funnel:1,agent:2,demo:3,config:4,network:5};
+  const items=document.querySelectorAll('.nav-item');
+  if(items[navMap[v]]){
+    items[navMap[v]].classList.add(v==='network'?'on-gold':'on');
+  }
+  const titles={
+    dashboard:['NXT Wraps — Live Dashboard','Waldorf, Maryland · Ceramic Pro Elite'],
+    funnel:['NEPQ Live Funnel','98 tint-tagged leads · real-time'],
+    agent:['AI Agent Browser','TintBot handling 12 active conversations'],
+    demo:['Live Bot Demo','Interactive coaching — try all three bots'],
+    config:['Bot Configuration','TintBot · AdBot · ContentBot settings'],
+    network:['Elite Dealer Network','88 dealers · ceramicpro.com · Master view'],
+  };
+  document.getElementById('topbar-title').textContent=titles[v][0];
+  document.getElementById('topbar-sub').textContent=titles[v][1];
+  renderContent();
+}
+
+function toggleNetwork(){
+  showView(currentView==='network'?'dashboard':'network');
+}
+
+function toggleBot(id){
+  botToggles[id]=!botToggles[id];
+  renderContent();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderContent(){
+  const el=document.getElementById('content');
+  el.innerHTML='';
+  el.className='content fadein';
+  void el.offsetWidth;
+
+  if(currentView==='dashboard') el.innerHTML=renderDashboard();
+  else if(currentView==='funnel') el.innerHTML=renderFunnelPage();
+  else if(currentView==='agent') el.innerHTML=renderAgentPage();
+  else if(currentView==='demo') el.innerHTML=renderDemoPage();
+  else if(currentView==='config') el.innerHTML=renderConfigPage();
+  else if(currentView==='network') el.innerHTML=renderNetworkPage();
+
+  if(currentView==='demo') initDemo();
+  attachEvents();
+}
+
+// ── METRIC STRIP ──────────────────────────────────────────────────────────
+function renderMetrics(){
+  const metrics=[
+    {l:"Total Leads",v:"2,142",c:"#3d8ef0",d:"↑ +18% vs 30d"},
+    {l:"Bot Handling",v:"12",c:"var(--text)",d:"Active convos"},
+    {l:"Booked (30d)",v:"38",c:"#2eb870",d:"↑ +6 vs prior"},
+    {l:"Pipeline",v:"$497K",c:"#c9913a",d:"↑ +22% vs last mo"},
+    {l:"Close Rate",v:"38%",c:"var(--text)",d:"↑ +4pts w/ bot"},
+    {l:"Elite Dealers",v:"88",c:"#c9913a",d:"Network total"},
+  ];
+  return `<div class="metric-strip">${metrics.map(m=>`
+    <div class="mc">
+      <div class="mc-lbl">${m.l}</div>
+      <div class="mc-val" style="color:${m.c}">${m.v}</div>
+      <div class="mc-d">${m.d}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ── BOTS PANEL ────────────────────────────────────────────────────────────
+function renderBots(){
+  const bots=[
+    {id:"tintbot",name:"TintBot",desc:"SMS lead gen + booking",icon:"⚡",color:"#3d8ef0",handling:12,booked:8,conv:"94%"},
+    {id:"adbot",name:"AdBot",desc:"Paid ads publisher",icon:"📢",color:"#2ec4b6",handling:4,booked:0,conv:"—"},
+    {id:"contentbot",name:"ContentBot",desc:"GBP + blog + social",icon:"✍️",color:"#9d7ff0",handling:0,booked:0,conv:"—"},
+  ];
+  return `<div class="card">
+    <div class="card-head">${acc('#c9913a')}<span class="card-title">Bot Suite</span><span class="card-sub">Ceramic Pro Elite Network</span></div>
+    <div class="bots-grid">${bots.map(b=>`
+      <div class="bot-card" style="border-color:${botToggles[b.id]?b.color+'44':'var(--bdr)'}">
+        <div class="bot-card-name" style="color:${b.color}">${b.icon} ${b.name}</div>
+        <div class="bot-card-desc">${b.desc}</div>
+        <div class="bot-stats">
+          <div><div class="bs-val" style="color:${b.color}">${b.handling}</div><div class="bs-lbl">handling</div></div>
+          <div><div class="bs-val" style="color:#2eb870">${b.booked}</div><div class="bs-lbl">booked</div></div>
+          <div><div class="bs-val">${b.conv}</div><div class="bs-lbl">conv</div></div>
+        </div>
+        <div class="bot-foot">
+          <span style="font-size:10px;font-weight:700;color:${botToggles[b.id]?'#2eb870':'var(--text3)'};font-family:var(--fm)">${botToggles[b.id]?'ACTIVE':'OFFLINE'}</span>
+          ${tog(botToggles[b.id],b.id)}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── FUNNEL ────────────────────────────────────────────────────────────────
+function renderFunnel(){
+  return `<div class="card">
+    <div class="card-head">${acc('#3d8ef0')}<span class="card-title">NEPQ Live Funnel</span><span class="card-sub">98 tint-tagged leads</span></div>
+    <div class="funnel-wrap">${STAGES.map(stage=>{
+      const leads=LEADS.filter(l=>l.stage===stage);
+      const color=STAGE_COLORS[stage];
+      return `<div class="fcol">
+        <div class="fcol-hdr">
+          <span class="fstage" style="color:${color}">${stage}</span>
+          <span class="fct">${leads.length}</span>
+        </div>
+        ${leads.map(l=>`
+          <div class="lc">
+            <div class="lc-name">${l.name}</div>
+            <div class="lc-veh">${l.vehicle}</div>
+            <div class="lc-foot">
+              <div class="ldot" style="background:${l.dot}"></div>
+              <span class="lc-svc">${l.svc}</span>
+              <span class="lc-time">${l.time}</span>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }).join('')}</div>
+  </div>`;
+}
+
+// ── AGENT BROWSER ─────────────────────────────────────────────────────────
+function renderAgent(){
+  const c=CONVOS[currentConvo];
+  return `<div class="card">
+    <div class="card-head">${acc('#3d8ef0')}<span class="card-title">AI Agent Browser</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
+        ${dot('#2eb870',true)}<span style="font-size:10px;color:#2eb870;font-weight:700;font-family:var(--fm)">TINTBOT ACTIVE</span>
+      </div>
+    </div>
+    <div class="agent-wrap">
+      <div class="convo-list">
+        ${CONVOS.map((cv,i)=>`
+          <div class="ci ${currentConvo===i?'on':''}" onclick="switchConvo(${i})">
+            <div class="ci-name">${cv.name}</div>
+            <div class="ci-prev">${cv.msgs[cv.msgs.length-1].t}</div>
+            <div class="ci-phase" style="color:${cv.phaseColor}">${cv.phase}</div>
+          </div>`).join('')}
+      </div>
+      <div class="chat-pane">
+        <div class="chat-hdr">
+          <div>
+            <div style="font-size:13px;font-weight:600">${c.name}</div>
+            <div style="font-size:11px;color:var(--text2)">${c.vehicle}</div>
+          </div>
+          <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${c.phaseColor}22;color:${c.phaseColor};font-family:var(--fm);margin-left:8px">${c.phase}</span>
+          <span style="margin-left:auto;font-size:10px;font-weight:700;background:var(--bdim);border:1px solid rgba(61,142,240,0.2);color:var(--blue);padding:2px 8px;border-radius:8px;font-family:var(--fm)">NEPQ ACTIVE</span>
+        </div>
+        <div class="msgs">
+          ${c.msgs.map(m=>`
+            <div class="msg ${m.d==='in'?'in':'out'}">
+              <div class="bubble">${m.t}</div>
+              <div class="msg-time">${m.d==='in'?'1h ago':'1h ago'}</div>
+              ${m.d==='out'?`<div class="bot-tag">⚡ TintBot · Ceramic Pro Elite</div>`:''}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="reason-pane">
+        <div class="r-title">Bot Reasoning</div>
+        ${c.reasoning.map(r=>`
+          <div class="r-step">
+            <div class="r-lbl">${r.l}</div>
+            <div class="r-txt">${r.t}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PIPELINE + QUEUE ──────────────────────────────────────────────────────
+function renderPipeline(){
+  return `<div class="card">
+    <div class="card-head">${acc('#2eb870')}<span class="card-title">Pipeline · 30d</span><span class="card-sub">$497K total</span></div>
+    <div class="card-body">
+      ${PIPELINE.map(p=>`
+        <div class="pipe-row">
+          <div class="pipe-stage">${p.stage}</div>
+          <div class="pipe-trk"><div class="pipe-bar" style="width:${p.pct}%;background:${p.color}"></div></div>
+          <div class="pipe-n">${p.leads.toLocaleString()}</div>
+          <div class="pipe-v">${p.value}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderQueue(){
+  return `<div class="card">
+    <div class="card-head">${acc('#e84545')}<span class="card-title">Re-Ignite Queue</span><span class="card-sub">28 stalled · 3d+ silent</span></div>
+    <div class="card-body">
+      ${QUEUE.map((q,i)=>`
+        <div class="qi">
+          <div class="qi-init">${q.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div>
+            <div class="qi-name">${q.name}${q.warm?'<span class="warm-tag">WARM</span>':''}</div>
+            <div class="qi-veh">${q.vehicle}</div>
+            <div class="qi-days">${q.days} silent</div>
+          </div>
+          <button class="nudge-btn ${nudgedItems[i]?'sent':''}" onclick="nudge(${i})">${nudgedItems[i]?'✓ Sent':'Nudge'}</button>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function nudge(i){nudgedItems[i]=true;renderContent();}
+
+function renderMap(){
+  const max=MAP_DATA[0].count;
+  return `<div class="card">
+    <div class="card-head">${acc('#3d8ef0')}<span class="card-title">Leadmap</span><span class="card-sub">2,142 all time</span></div>
+    <div class="card-body">
+      ${MAP_DATA.map((d,i)=>`
+        <div class="map-row">
+          <div class="map-rk">${i+1}</div>
+          <div class="map-city">${d.city}</div>
+          <div class="map-trk"><div class="map-bar" style="width:${(d.count/max*100).toFixed(0)}%"></div></div>
+          <div class="map-ct">${d.count}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderGBP(){
+  return `<div class="card">
+    <div class="card-head">${acc('#2ec4b6')}<span class="card-title">GBP · 90 Days</span><span class="card-sub">Feb–May 2026</span></div>
+    <div class="card-body">
+      <div class="gbp-grid">
+        ${[{v:"6,492",l:"Total Views",d:"+109.8%"},{v:"4,665",l:"Searches",d:"+148.4%"},{v:"166",l:"Phone Calls",d:"+110.1%"},{v:"739",l:"Directions",d:"+85.2%"}].map(s=>`
+          <div class="gbp-s">
+            <div class="gbp-v">${s.v}</div>
+            <div class="gbp-l">${s.l}</div>
+            <div class="gbp-d">${s.d} vs prior yr</div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:11px;padding:9px 10px;background:var(--surf);border-radius:7px;border:1px solid var(--bdr)">
+        <div style="font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-family:var(--fm)">Profile Health</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px"><div style="width:75%;height:4px;background:var(--blue);border-radius:2px"></div></div>
+          <span style="font-size:12px;color:var(--blue);font-family:var(--fm);font-weight:700">75/100</span>
+        </div>
+        <div style="font-size:10px;color:var(--gold)">⚠ Reviews 10/25 · Maintenance 3/13</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderReviews(){
+  return `<div class="card">
+    <div class="card-head">${acc('#c9913a')}<span class="card-title">Reviews</span><span class="card-sub">35% response rate</span></div>
+    <div class="card-body">
+      <div style="font-size:32px;font-weight:700;font-family:var(--fm);color:var(--text)">4.3</div>
+      <div style="font-size:15px;margin:3px 0 8px">⭐⭐⭐⭐☆</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;font-family:var(--fm)">85 reviews · ceramicpro.com</div>
+      ${[[5,71,'#c9913a'],[4,0,'#c9913a'],[3,0,'#c9913a'],[2,0,'#e84545'],[1,14,'#e84545']].map(([s,ct,col])=>`
+        <div class="rb-row">
+          <div class="rb-lbl">${s}</div>
+          <div class="rb-trk"><div class="rb-fill" style="width:${ct>0?(ct/85*100).toFixed(0):0}%;background:${col}"></div></div>
+          <span style="font-size:10px;color:var(--text3);font-family:var(--fm);width:20px;text-align:right">${ct}</span>
+        </div>`).join('')}
+      <div style="margin-top:11px;padding:9px 10px;background:var(--surf);border-radius:6px;border:1px solid var(--bdr)">
+        <div style="font-size:10px;color:var(--gold);margin-bottom:4px">+15 pts · Get new reviews</div>
+        <div style="font-size:10px;color:var(--blue)">+10 pts · Citation listings</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── PAGES ─────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  return renderMetrics()+renderBots()+renderFunnel()+renderAgent()+
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${renderPipeline()}${renderQueue()}</div>`+
+    `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:14px;margin-top:14px">${renderMap()}${renderGBP()}${renderReviews()}</div>`;
+}
+function renderFunnelPage(){return renderMetrics()+renderFunnel();}
+function renderAgentPage(){return renderAgent();}
+
+function renderDemoPage(){
+  return `<div class="card">
+    <div class="card-head">${acc('#2eb870')}
+      <span class="card-title">Live Bot Demo</span>
+      <div style="display:flex;gap:5px;margin-left:12px">
+        ${['coating','tint','ppf'].map(type=>`
+          <button onclick="switchDemoType('${type}')" style="padding:4px 11px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${demoType===type?'rgba(46,196,182,0.3)':'var(--bdr)'};background:${demoType===type?'var(--tdim)':'transparent'};color:${demoType===type?'var(--teal)':'var(--text2)'};font-family:var(--fb);transition:all 0.13s">
+            ${type==='coating'?'🛡️ Coating':type==='tint'?'🪟 Tint':'🎬 PPF'}
+          </button>`).join('')}
+      </div>
+      <span class="card-sub">Try all three bots</span>
+    </div>
+    <div class="demo-wrap">
+      <div class="demo-chat">
+        <div class="demo-chat-hdr">
+          <div class="demo-avatar">${currentPersona==='alex'?'😊':currentPersona==='david'?'🎯':'✨'}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;font-family:var(--fh)">${PERSONAS.find(p=>p.id===currentPersona).name} · ${demoType==='coating'?'CoatingBot':demoType==='tint'?'TintBot':'PPFBot'}</div>
+            <div style="font-size:11px;color:var(--text2)">NXT Wraps · Ceramic Pro Elite</div>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;margin-right:8px">
+            ${['alex','david','maya'].map(pid=>`
+              <div onclick="switchPersona('${pid}')" title="${PERSONAS.find(p=>p.id===pid).name}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border:2px solid ${currentPersona===pid?PERSONAS.find(p=>p.id===pid).color:'transparent'};background:${currentPersona===pid?PERSONAS.find(p=>p.id===pid).color+'22':'var(--surf)'};transition:all 0.13s">${PERSONAS.find(p=>p.id===pid).emoji}</div>`).join('')}
+          </div>
+          ${dot('#2eb870',true)}
+          <span style="font-size:10px;color:#2eb870;font-weight:700;font-family:var(--fm);margin-left:3px">LIVE</span>
+        </div>
+        <div class="demo-msgs" id="demo-msgs"></div>
+        <div class="demo-quick" id="demo-quick"></div>
+        <div class="demo-input-row">
+          <input class="demo-input" id="demo-input" placeholder="Type a message or click a quick reply..."/>
+          <button class="demo-send" onclick="demoSend()">➤</button>
+        </div>
+      </div>
+      <div class="demo-side">
+        <div class="demo-side-hdr">Active Lead</div>
+        <div class="demo-lead">
+          <div class="demo-lead-name" id="demo-lead-name">Incoming lead...</div>
+          <div class="demo-lead-veh" id="demo-lead-veh">Vehicle TBD</div>
+          <span class="demo-badge db-new" id="demo-badge">New</span>
+          <span style="display:none;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;background:var(--gndim);color:var(--green);font-family:var(--fm)" id="demo-svc-badge">${demoType==='coating'?'Coating':demoType==='tint'?'Tint':'PPF'}</span>
+        </div>
+        <div class="pkg-sec">
+          <div class="pkg-lbl">Recommended packages</div>
+          <div id="demo-pkgs"><div style="font-size:12px;color:var(--text3);padding:8px 0">Qualifying lead...</div></div>
+        </div>
+        <div class="summary-box" id="demo-summary"></div>
+        <div class="demo-actions">
+          <button class="demo-act-btn" onclick="demoNudge()">🔔 Nudge</button>
+          <button class="demo-act-btn primary" onclick="demoQuote()">📄 Quote</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderConfigPage(){
+  const p=PERSONAS.find(x=>x.id===currentPersona);
+  const traitOpts=["Uses first names","Asks NEPQ questions first","Educates on products","CP Elite credentials","Fast replies","Mentions warranty","Celebrates bookings","Avoids hard sell"];
+  return `<div class="card">
+    <div class="card-head">${acc('#c9913a')}<span class="card-title">Bot Configuration</span><span class="card-sub">NXT Wraps · Master Settings</span></div>
+    <div class="cfg-tabs" id="cfg-tabs">
+      <div class="cfg-tab on" onclick="switchCfgTab(this,'on')">⚡ TintBot</div>
+      <div class="cfg-tab" onclick="switchCfgTab(this,'on-teal')">📢 AdBot</div>
+      <div class="cfg-tab" onclick="switchCfgTab(this,'on-purple')">✍️ ContentBot</div>
+    </div>
+    <div class="cfg-body" id="cfg-body">
+      ${renderTintBotCfg(p,traitOpts)}
+    </div>
+  </div>
+  <div class="save-bar">
+    <div class="save-info">Configuring <strong>TintBot</strong> for <strong>NXT Wraps</strong> · Changes push to all active leads</div>
+    <div class="save-btns">
+      <button class="btn-ghost">Preview</button>
+      <button class="btn-ghost">Reset to defaults</button>
+      <button class="btn-primary" style="background:var(--blue);color:#fff" onclick="saveCfg(this)">Save &amp; Deploy</button>
+    </div>
+  </div>`;
+}
+
+function renderTintBotCfg(p,traitOpts){
+  return `<div class="cfg-2col">
+    <div>
+      <div class="fld">
+        <div class="fld-lbl">Bot Persona</div>
+        <div class="persona-wrap">
+          <div class="persona-cur ${personaOpen?'open':''}" onclick="togglePersonaDrop()">
+            <div class="p-avatar" style="background:${p.color}22">${p.emoji}</div>
+            <div><div class="p-name">${p.name}</div><div class="p-role">${p.role}</div></div>
+            <span style="color:var(--text3);margin-left:auto;transition:transform 0.15s;${personaOpen?'transform:rotate(180deg)':''}">▼</span>
+          </div>
+          ${personaOpen?`<div class="persona-drop">
+            ${PERSONAS.map(per=>`
+              <div class="p-opt ${currentPersona===per.id?'sel':''}" onclick="selectPersona('${per.id}')">
+                <div class="p-avatar" style="width:34px;height:34px;border-radius:7px;background:${per.color}22;display:flex;align-items:center;justify-content:center;font-size:16px">${per.emoji}</div>
+                <div style="flex:1">
+                  <div class="po-name">${per.name} — ${per.role}</div>
+                  <div class="po-desc">${per.desc||per.role}</div>
+                  <div class="po-tags">
+                    <span class="po-tag" style="background:${per.color}22;color:${per.color}">NEPQ</span>
+                    <span class="po-tag" style="background:var(--gdim);color:var(--gold)">CP Elite</span>
+                  </div>
+                </div>
+                ${currentPersona===per.id?'<span style="color:var(--blue)">✓</span>':''}
+              </div>`).join('')}
+          </div>`:''}
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Display Name</div>
+        <input class="inp" value="${p.name}" placeholder="Bot name customers see"/>
+        <div class="fld-hint">e.g. "Alex from NXT Wraps"</div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Tone — ${["","Casual","Friendly","Balanced","Professional","Premium"][currentTone]}</div>
+        <div class="tone-track" id="tone-track">
+          ${[1,2,3,4,5].map(v=>`<div class="tone-pip" style="background:${v<=currentTone?'var(--blue)':'var(--surf)'}" onclick="setTone(${v})"></div>`).join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:10px;color:var(--text3)">Casual</span>
+          <span style="font-size:10px;color:var(--text3)">Premium</span>
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Conversation Traits</div>
+        <div class="trait-grid">
+          ${traitOpts.map((t,i)=>`
+            <div class="trait-tog ${currentTraits[i]?'on':''}" onclick="toggleTrait(${i})">
+              <span class="trait-lbl">${t}</span>
+              ${minitog(currentTraits[i])}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Custom Opening (optional)</div>
+        <textarea class="txa" placeholder="Leave blank to use NEPQ default..."></textarea>
+        <div class="fld-hint">Overrides the default Phase 1 greeting.</div>
+      </div>
+    </div>
+    <div>
+      <div class="fld">
+        <div class="fld-lbl">Live Preview</div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--surf);border-radius:8px;border:1px solid var(--bdr);margin-bottom:10px">
+          <div style="width:34px;height:34px;border-radius:8px;background:${p.color}22;display:flex;align-items:center;justify-content:center;font-size:18px">${p.emoji}</div>
+          <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--text2)">Ceramic Pro Elite · ${p.role}</div></div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:5px">${dot('#2eb870',true)}<span style="font-size:10px;color:#2eb870;font-weight:700;font-family:var(--fm)">ACTIVE</span></div>
+        </div>
+        <div class="preview-box">
+          <div class="preview-lbl">First message preview</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;text-align:right;font-family:var(--fm)">Customer: "Hey how much for tint?"</div>
+          <div class="preview-msg">${p.preview.replace('{name}','Marcus')}</div>
+          <div class="preview-from">⚡ ${p.name} · TintBot · Ceramic Pro Elite</div>
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">All Personas</div>
+        <div class="persona-compare">
+          ${PERSONAS.filter(x=>x.id!=='custom').map(per=>`
+            <div class="pc-row ${currentPersona===per.id?'sel-p':''}" onclick="selectPersona('${per.id}')">
+              <span style="font-size:15px">${per.emoji}</span>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:${currentPersona===per.id?per.color:'var(--text)'}">${per.name} — ${per.role}</div>
+                <div style="font-size:11px;color:var(--text2);font-style:italic">"${per.preview.replace('{name}','Marcus').slice(0,72)}..."</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderAdBotCfg(){
+  return `<div class="cfg-2col">
+    <div>
+      <div class="fld">
+        <div class="fld-lbl">Ad Format</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px">
+          ${[{icon:"🎬",label:"Video"},{icon:"🖼️",label:"Image"},{icon:"🎠",label:"Carousel"}].map((t,i)=>`
+            <div style="padding:10px 6px;border-radius:8px;border:1px solid ${i===0?'var(--tglow)':'var(--bdr)'};background:${i===0?'var(--tdim)':'var(--surf)'};cursor:pointer;text-align:center">
+              <div style="font-size:20px;margin-bottom:3px">${t.icon}</div>
+              <div style="font-size:11px;font-weight:600;color:${i===0?'var(--teal)':'var(--text2)'}">${t.label}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Platform</div>
+        <select class="sel"><option>Meta (Facebook + Instagram)</option><option>Google Ads</option><option>TikTok Ads</option><option>YouTube Ads</option></select>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Headline</div>
+        <input class="inp" value="Protect Your Investment — Ceramic Pro Elite"/>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Body Copy</div>
+        <textarea class="txa" style="min-height:70px">NXT Wraps is a Ceramic Pro Elite certified dealer in Waldorf, MD. PPF, Window Tint, and Ceramic Coating backed by a manufacturer warranty. Book this week.</textarea>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">CTA Button</div>
+        <select class="sel"><option>Book Now</option><option>Get a Quote</option><option>Learn More</option><option>Call Now</option></select>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Destination Link</div>
+        <div style="display:flex;gap:8px">
+          <input class="inp" value="https://nxtwraps.com/specials" style="flex:1"/>
+          <button style="background:var(--tdim);border:1px solid var(--tglow);color:var(--teal);font-size:12px;font-weight:600;padding:9px 12px;border-radius:7px;cursor:pointer;font-family:var(--fb)">+ Add</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="fld">
+        <div class="fld-lbl">Media Library</div>
+        <div class="media-drop">
+          <div style="font-size:26px;margin-bottom:6px">📁</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Drop videos or images here</div>
+          <div style="font-size:11px;color:var(--text3)">MP4, MOV, JPG, PNG · up to 500MB</div>
+        </div>
+        <div class="media-grid">
+          ${MEDIA.map((m,i)=>`
+            <div class="media-item ${selMedia[i]?'sel':''}" onclick="toggleMedia(${i})">
+              <div class="media-thumb">${m.thumb}</div>
+              <div class="media-info">
+                <div class="media-name">${m.name}</div>
+                <div class="media-sz">${m.size}</div>
+              </div>
+              ${selMedia[i]?'<div class="media-chk">✓</div>':''}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="fld" style="margin-top:12px">
+        <div class="fld-lbl">Budget · Daily</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:16px;color:var(--text2)">$</span>
+          <input class="inp" value="35" type="number" style="flex:1"/>
+          <span style="font-size:12px;color:var(--text3)">/day</span>
+        </div>
+      </div>
+      <div class="fld">
+        <div class="fld-lbl">Audience</div>
+        <select class="sel"><option>25 mile radius · Auto owners · Ages 25–55</option><option>Retargeting — website visitors</option><option>Lookalike — past customers</option></select>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderContentBotCfg(){
+  return `<div>
+    <div style="font-size:10px;font-weight:600;color:var(--text2);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:10px;font-family:var(--fm)">Platform Connections</div>
+    <div class="plat-grid">
+      ${platforms.map((p,i)=>`
+        <div class="plat-card ${p.on?'connected':''}">
+          <div class="plat-top">
+            <div class="plat-icon" style="background:${p.bg}33">${p.icon}</div>
+            <div><div class="plat-name">${p.name}</div><div class="plat-handle">${p.handle}</div></div>
+            <span class="plat-badge ${p.on?'pb-on':'pb-off'}">${p.on?'ON':'OFF'}</span>
+          </div>
+          ${p.on?`<div class="plat-opts">${p.opts.map(o=>`<span class="plat-opt">${o}</span>`).join('')}</div>`
+          :`<button class="plat-connect" onclick="connectPlat(${i})">Connect ${p.name} →</button>`}
+        </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="fld">
+          <div class="fld-lbl">Post Frequency</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px">
+            ${["Daily","3x/week","2x/week","Weekly"].map((f,i)=>`
+              <div style="padding:7px 4px;text-align:center;border-radius:7px;border:1px solid ${i===1?'rgba(157,127,240,0.35)':'var(--bdr)'};background:${i===1?'var(--pdim)':'var(--surf)'};cursor:pointer;font-size:11px;font-weight:600;color:${i===1?'var(--purple)':'var(--text2)'}">${f}</div>`).join('')}
+          </div>
+        </div>
+        <div class="fld">
+          <div class="fld-lbl">Post Tone</div>
+          <select class="sel"><option>Educational — teach + inform</option><option>Before/After — show results</option><option>Authority — CP Elite brand</option><option>Mixed — AI rotates</option></select>
+        </div>
+        <div class="fld">
+          <div class="fld-lbl">Hashtag Strategy</div>
+          <select class="sel"><option>Auto-generate per post</option><option>Fixed set always</option><option>Local + service mix</option></select>
+        </div>
+      </div>
+      <div>
+        <div class="fld">
+          <div class="fld-lbl">CP Branding</div>
+          ${["Always tag @ceramicpro","Include CP Elite badge","Link ceramicpro.com in bio","Add warranty mention"].map(opt=>`
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surf);border-radius:6px;border:1px solid var(--bdr);margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text);flex:1">${opt}</span>
+              ${minitog(true)}
+            </div>`).join('')}
+        </div>
+        <div class="fld">
+          <div class="fld-lbl">Review Automation</div>
+          ${["Auto-respond to 5-star reviews","Flag 1-star reviews for Eddie","Request review after install"].map((opt,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surf);border-radius:6px;border:1px solid var(--bdr);margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text);flex:1">${opt}</span>
+              ${minitog(i<3)}
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNetworkPage(){
+  return `<div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-family:var(--fh);font-size:18px;font-weight:700">Elite Dealer Network</div>
+      <div style="font-size:11px;color:var(--text2)">88 dealers · 4 bots active · ceramicpro.com</div>
+    </div>
+    ${renderMetrics()}
+    <div class="network-grid">
+      ${DEALERS.map((d,i)=>`
+        <div class="dealer-card">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+            <div><div class="dc-name">${d.name}</div><div class="dc-loc">${d.loc}</div></div>
+            <span class="cp-cert">CP ELITE</span>
+          </div>
+          <div class="dc-stats">
+            <div><div class="dcs-val" style="color:#3d8ef0">${d.leads}</div><div class="dcs-lbl">leads</div></div>
+            <div><div class="dcs-val" style="color:#2eb870">${d.booked}</div><div class="dcs-lbl">booked</div></div>
+            <div><div class="dcs-val" style="color:#c9913a">${d.rev}</div><div class="dcs-lbl">revenue</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+            ${d.bot?`${dot('#2eb870',true)}<span style="font-size:10px;color:#2eb870;font-weight:600">TintBot Active</span>`:`<span style="font-size:10px;color:var(--text3)">Bot not deployed</span>`}
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────
+function attachEvents(){
+  const di=document.getElementById('demo-input');
+  if(di) di.addEventListener('keydown',e=>{if(e.key==='Enter')demoSend();});
+}
+
+function switchConvo(i){currentConvo=i;renderContent();}
+function togglePersonaDrop(){personaOpen=!personaOpen;renderContent();}
+function selectPersona(id){currentPersona=id;personaOpen=false;renderContent();}
+function setTone(v){currentTone=v;renderContent();}
+function toggleTrait(i){currentTraits[i]=!currentTraits[i];renderContent();}
+function toggleMedia(i){selMedia[i]=!selMedia[i];renderContent();}
+function connectPlat(i){platforms[i].on=true;renderContent();}
+
+function switchCfgTab(el,cls){
+  document.querySelectorAll('.cfg-tab').forEach(t=>{t.className='cfg-tab'});
+  el.className='cfg-tab '+cls;
+  const idx=Array.from(el.parentElement.children).indexOf(el);
+  const body=document.getElementById('cfg-body');
+  const traitOpts=["Uses first names","Asks NEPQ questions first","Educates on products","CP Elite credentials","Fast replies","Mentions warranty","Celebrates bookings","Avoids hard sell"];
+  const p=PERSONAS.find(x=>x.id===currentPersona);
+  if(idx===0) body.innerHTML=renderTintBotCfg(p,traitOpts);
+  else if(idx===1) body.innerHTML=renderAdBotCfg();
+  else body.innerHTML=renderContentBotCfg();
+  const saveBar=document.querySelector('.save-bar .save-info strong');
+  if(saveBar) saveBar.textContent=['TintBot','AdBot','ContentBot'][idx];
+  const saveBtn=document.querySelector('.btn-primary');
+  if(saveBtn){saveBtn.style.background=['var(--blue)','var(--teal)','var(--purple)'][idx];saveBtn.style.color=idx===1?'#000':'#fff';}
+  attachEvents();
+}
+
+function saveCfg(btn){
+  const orig=btn.textContent;
+  btn.textContent='✓ Saved';btn.style.background='var(--green)';btn.style.color='#000';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='var(--blue)';btn.style.color='#fff';},2000);
+}
+
+// ── DEMO ENGINE ───────────────────────────────────────────────────────────
+function switchDemoType(type){
+  demoType=type;demoStep=0;demoTyping=false;
+  renderContent();
+}
+function switchPersona(id){
+  currentPersona=id;
+  renderContent();
+}
+
+function initDemo(){
+  demoStep=0;demoTyping=false;
+  const msgs=document.getElementById('demo-msgs');
+  if(msgs){msgs.innerHTML='';}
+  const flow=DEMO_FLOWS[demoType];
+  setTimeout(()=>{
+    addDemoMsg(flow[0].bot,'bot');
+    setDemoQuicks(flow[0].quick);
+    updateDemoLead({name:"Incoming lead",vehicle:"Vehicle TBD",badge:"new"});
+  },300);
+}
+
+function addDemoMsg(text,who){
+  const m=document.getElementById('demo-msgs');
+  if(!m)return;
+  const d=document.createElement('div');
+  d.className='msg '+(who==='bot'?'in':'out');
+  const b=document.createElement('div');
+  b.className='bubble';b.textContent=text;
+  const t=document.createElement('div');
+  t.className='msg-time';t.textContent='just now';
+  d.appendChild(b);d.appendChild(t);
+  if(who==='bot'){
+    const tag=document.createElement('div');
+    const p=PERSONAS.find(x=>x.id===currentPersona);
+    tag.className='bot-tag';
+    tag.textContent=`⚡ ${p.name} · TintBot · Ceramic Pro Elite`;
+    d.appendChild(tag);
+  }
+  m.appendChild(d);
+  m.scrollTop=m.scrollHeight;
+}
+
+function setDemoQuicks(qs){
+  const c=document.getElementById('demo-quick');
+  if(!c)return;
+  c.innerHTML=qs.map(q=>`<button class="qbtn" onclick="handleDemoQuick('${q.replace(/'/g,"\\'")}')">${q}</button>`).join('');
+}
+
+function handleDemoQuick(text){addDemoMsg(text,'user');processDemoResponse(text);}
+
+function demoSend(){
+  const inp=document.getElementById('demo-input');
+  if(!inp||!inp.value.trim()||demoTyping)return;
+  const text=inp.value.trim();inp.value='';
+  addDemoMsg(text,'user');processDemoResponse(text);
+}
+
+function processDemoResponse(text){
+  demoTyping=true;setDemoQuicks([]);
+  const flow=DEMO_FLOWS[demoType];
+  const current=flow[Math.min(demoStep,flow.length-1)];
+  const next=typeof current.next==='function'?current.next(text.toLowerCase()):current.next;
+  demoStep=Math.min(next,flow.length-1);
+  // typing indicator
+  const m=document.getElementById('demo-msgs');
+  if(m){
+    const typing=document.createElement('div');
+    typing.className='msg in';typing.id='demo-typing';
+    typing.innerHTML='<div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>';
+    m.appendChild(typing);m.scrollTop=m.scrollHeight;
+  }
+  setTimeout(()=>{
+    const t=document.getElementById('demo-typing');if(t)t.remove();
+    const step=flow[demoStep];
+    addDemoMsg(step.bot,'bot');
+    if(step.pkgs) renderDemoPkgs(step.pkgs);
+    if(step.lead) updateDemoLead(step.lead);
+    if(step.showSummary) showDemoSummary();
+    setDemoQuicks(step.quick||[]);
+    demoTyping=false;
+  },900+Math.random()*400);
+}
+
+function renderDemoPkgs(indices){
+  const el=document.getElementById('demo-pkgs');if(!el)return;
+  const pkgSrc=demoType==='coating'?PACKAGES:demoType==='tint'?TINT_PKGS:PPF_PKGS;
+  el.innerHTML=indices.map((i,idx)=>`
+    <div class="pkg-card ${idx===0?'sel-pkg':''}" onclick="this.parentElement.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel-pkg'));this.classList.add('sel-pkg')">
+      <div class="pkg-row">
+        <span class="pkg-name">${pkgSrc[i]?pkgSrc[i].name:'Package'}</span>
+        <span class="pkg-price">${pkgSrc[i]?pkgSrc[i].price:'—'}</span>
+      </div>
+      <div class="pkg-detail">${pkgSrc[i]?pkgSrc[i].detail:''}</div>
+    </div>`).join('');
+}
+
+function updateDemoLead(data){
+  if(!data)return;
+  const n=document.getElementById('demo-lead-name');
+  const v=document.getElementById('demo-lead-veh');
+  const b=document.getElementById('demo-badge');
+  const s=document.getElementById('demo-svc-badge');
+  if(n&&data.name)n.textContent=data.name;
+  if(v&&data.vehicle)v.textContent=data.vehicle;
+  if(b&&data.badge){
+    b.className=`demo-badge db-${data.badge}`;
+    b.textContent=data.badge.charAt(0).toUpperCase()+data.badge.slice(1);
+  }
+  if(s)s.style.display='inline-block';
+}
+
+function showDemoSummary(){
+  const el=document.getElementById('demo-summary');if(!el)return;
+  const labels={coating:'Coating',tint:'Window Tint',ppf:'PPF'};
+  const pkgs={coating:'Gold ($1,199)',tint:'KAVACA Ceramic IR ($480)',ppf:'Full Front ($899)'};
+  const vehicles={coating:'2024 BMW X5',tint:'2023 Tesla Model 3',ppf:'2025 Porsche 911'};
+  el.className='summary-box vis';
+  el.innerHTML=`<strong>Quote Summary</strong><br>Package: ${pkgs[demoType]}<br>Vehicle: ${vehicles[demoType]}<br>Deposit: 10%<br>Warranty: Lifetime<br>Registered: ceramicpro.com/warranty`;
+}
+
+function demoNudge(){addDemoMsg("Scheduling a follow-up nudge in 24 hours...","bot");}
+function demoQuote(){
+  addDemoMsg("Generating quote and deposit link...","bot");
+  setTimeout(()=>addDemoMsg("Quote sent via SMS. Deposit link: nxtwraps.com/pay · Ceramic Pro Elite warranty included.","bot"),800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+showView('dashboard');
+</script>
+</body>
+</html>
